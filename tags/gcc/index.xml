@@ -1,0 +1,1170 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>gcc on 天远博客</title>
+        <link>https://blog.yprnet.com/tags/gcc/</link>
+        <description>Recent content in gcc on 天远博客</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <copyright>YuanPeirong TianYuan All Rights Reserved.</copyright>
+        <lastBuildDate>Thu, 18 Jan 2024 15:00:00 +0800</lastBuildDate><atom:link href="https://blog.yprnet.com/tags/gcc/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>GCC上的动态库与静态库</title>
+        <link>https://blog.yprnet.com/p/prog/cpp-gcc-sharedandstaticlib/</link>
+        <pubDate>Thu, 18 Jan 2024 15:00:00 +0800</pubDate>
+        
+        <guid>https://blog.yprnet.com/p/prog/cpp-gcc-sharedandstaticlib/</guid>
+        <description>&lt;h2 id=&#34;文件名后缀名&#34;&gt;文件名、后缀名&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;静态链接库文件的后缀名：Linux通常用 &lt;code&gt;.a &lt;/code&gt; ,Windows通常用 &lt;code&gt;.lib&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;动态链接库文件的后缀名：Linux通常用 &lt;code&gt;.so&lt;/code&gt; ,Windows通常用 &lt;code&gt;.dll&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;库类型&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Linux-GCC&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Windows-MinGW&lt;/th&gt;
+&lt;th style=&#34;text-align:left&#34;&gt;Windows-MSVC&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;静态库&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;libxxx.a&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;libxxx.a&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;xxx.lib&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;动态库&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;libxxx.so&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;libxxx.dll&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;xxx.dll&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;动态库附加文件&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;libxxx.dll.a&lt;/td&gt;
+&lt;td style=&#34;text-align:left&#34;&gt;xxx.lib&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;动态库附加文件&lt;code&gt;libxxx.dll.a&lt;/code&gt;有时会有其他形式：&lt;code&gt;libxxx.a&lt;/code&gt;、&lt;code&gt;libxxxdll.a&lt;/code&gt;，后者改变了库名&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;创建动态库&#34;&gt;创建动态库&lt;/h2&gt;
+&lt;h3 id=&#34;格式&#34;&gt;格式&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;gcc -fPIC -shared 源文件名(列表)... -o 动态链接库名&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;gcc -fPIC -shared 目标文件名(列表)... -o 动态链接库名&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;单个源文件目标直接生成动态库&#34;&gt;单个源文件/目标直接生成动态库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;方法1: &lt;code&gt;gcc -fPIC -shared xxx.c -o libxxx.so&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;方法2: &lt;code&gt;gcc -fPIC -shared xxx.o -o libxxx.so&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;多个源文件目标生成动态库&#34;&gt;多个源文件/目标生成动态库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;方法1: &lt;code&gt;gcc -fPIC -shared xxx1.c xxx2.c xxx3.c -o libxxx.so&lt;/code&gt;&lt;br&gt;
+或:    &lt;code&gt;gcc -fPIC -shared *.c -o libxxx.so&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;方法2: &lt;code&gt;gcc -fPIC -shared xxx1.o xxx2.o xxx3.o -o libxxx.so&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;备注&#34;&gt;备注&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;libxxx.so&lt;/code&gt;可在Windows上改为&lt;code&gt;libxxx.dll&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;windows上小熊猫c创建的c语言动态库testshared-c&#34;&gt;Windows上小熊猫C++创建的C语言动态库&lt;code&gt;TestShared-C&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;gcc.exe -c dllmain.c -o dllmain.o -O2 -pipe -DBUILDING_DLL=1&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;windres.exe -i TestShared-C_private.rc --input-format=rc -o Test-O coff&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;gcc.exe -mdll dllmain.o TestShared-C_private.res -o libTestShared-C.dll -s -static -Wl,--output-def,libTestShared-C.def,--out-implib,libTestShared-C.a&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;注：&lt;code&gt;-DBUILDING_DLL=1&lt;/code&gt;是为了让&lt;code&gt;dll.h&lt;/code&gt;中的宏&lt;code&gt;BUILDING_DLL&lt;/code&gt;生效，下同&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;windows上小熊猫c创建的c语言动态库testshared-cpp&#34;&gt;Windows上小熊猫C++创建的C++语言动态库&lt;code&gt;TestShared-CPP&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;g++.exe -c dllmain.cpp -o dllmain.o -O2 -std=c++2a -pipe -DBUILDING_DLL=1&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;windres.exe -i TestShared-CPP_private.rc --input-format=rc -o TestShared-CPP_private.res -O coff&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;g++.exe -mdll dllmain.o TestShared-CPP_private.res -o libTestShared-CPP.dll -s -static -Wl,--output-def,libTestShared-CPP.def,--out-implib,libTestShared-CPP.a&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;总结&#34;&gt;总结&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;单步：&lt;br&gt;
+&lt;code&gt;g++.exe -fPIC -mdll xxx1.c xxx2.c xxx3.c -o libxxx.dll -O2 -std=c++20 -pipe -s -static -Wl,--output-def,libxxx.def,--out-implib,libxxx.dll.a -DXXXXXX=1&lt;/code&gt;&lt;br&gt;
+解析：
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++.exe -fPIC -mdll xxx1.c xxx2.c xxx3.c -o libxxx.dll&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-O2 -std=c++20 -pipe -s -static&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-Wl,--output-def,libxxx.def,--out-implib,libxxx.dll.a&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-DXXXXXX=1&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;分步：
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++.exe -c xxx1.c xxx2.c xxx3.c -O2 -std=c++20 -pipe -DXXXXXX=1&lt;/code&gt;&lt;br&gt;
+或&lt;code&gt;g++.exe -c xxx1.c -O2 -o xxx1.o -std=c++20 -pipe -DXXXXXX=1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;g++.exe -fPIC -mdll xxx1.o xxx2.o xxx3.o -o libxxx.dll -s -static -Wl,--output-def,libxxx.def,--out-implib,libxxx.dll.a&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;gcc编译选项说明&#34;&gt;gcc编译选项说明&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-c&lt;/code&gt;：只编译，不链接，生成目标文件&lt;code&gt;.o&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-shared&lt;/code&gt;：用于生成动态链接库（shared library）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-mdll&lt;/code&gt;  ：为DLL生成代码(Generate code for a DLL)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-fPIC&lt;/code&gt;：生成位置无关代码，方便动态链接，常用于编译动态链接库（shared library）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-Wl,&amp;lt;选项&amp;gt;&lt;/code&gt;：将逗号分隔的 &amp;lt;选项&amp;gt; 传递给链接器。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--output-def &amp;lt;file&amp;gt;&lt;/code&gt;：产生与导出符号相关的def文件(Generate a .DEF file for the built DLL)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--out-implib FILE&lt;/code&gt;：产生用于提供__img_符号的导入库(Generate import library)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--kill-at&lt;/code&gt;：从导出的符号中删除@nn(Remove @nn from exported symb)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-Wl,--output-def,libTestShared-CPP.def,--out-implib,libTestShared-CPP.a&lt;/code&gt;中不要有空格&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;创建静态库&#34;&gt;创建静态库&lt;/h2&gt;
+&lt;h3 id=&#34;格式-1&#34;&gt;格式&lt;/h3&gt;
+&lt;p&gt;简单地说，静态库是一个目标文件的简单集合。因此，首先有目标文件。再把生成的目标文件编译为静态库。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一步：先生成.o目标文件&lt;br&gt;
+&lt;code&gt;gcc -c 源文件列表&lt;/code&gt;&lt;br&gt;
+&lt;code&gt;gcc -c *.c&lt;/code&gt;&lt;br&gt;
+如&lt;code&gt;gcc -c myfunc.c myproc.c&lt;/code&gt;将得到&lt;code&gt;myfunc.o&lt;/code&gt;和&lt;code&gt;myproc.o&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;第二步：由&lt;code&gt;ar&lt;/code&gt;（archive，归档的意思）把多个目标文件集合起来编译为静态库。&lt;br&gt;
+&lt;code&gt;ar rcs 静态链接库名称 目标文件1 目标文件2 ... &lt;/code&gt;&lt;br&gt;
+&lt;code&gt;ar rcs libname.a *.o&lt;/code&gt; 或 &lt;code&gt;gcc *.o -static -o libname.a&lt;/code&gt;&lt;br&gt;
+如&lt;code&gt;ar rcs libmyjob.a myfunc.o myproc.o&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;单个源文件目标直接生成静态库&#34;&gt;单个源文件/目标直接生成静态库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;正确方法: &lt;code&gt;ar rcs libxxx.a xxx.o&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;错误方法: &lt;code&gt;ar rcs libxxx.a xxx.c&lt;/code&gt;（静态库可以生成；当运行连接了该静态库的可执行程序会报错：could not read symbols:Archive has no index;run ranlib to add one）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;多个源文件目标生成静态库&#34;&gt;多个源文件/目标生成静态库&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;正确方法: &lt;code&gt;ar rcs libxxx.a xxx1.o xxx2.o xxx3.o&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;错误方法: &lt;code&gt;ar rcs libxxx.a xxx1.c xxx2.c xxx3.c&lt;/code&gt;（静态库可以生成；当运行连接了该静态库的可执行程序会报错：could not read symbols:Archive has no index;run ranlib to add one）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;windows上小熊猫c创建的c语言静态库teststatic-c&#34;&gt;Windows上小熊猫C++创建的C语言静态库&lt;code&gt;TestStatic-C&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;gcc.exe -c hello.c -o hello.o -O2 -pipe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;windres.exe -i TestStatic-C_private.rc --input-format=rc -o TestStatic-C_private.res -O coff&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ar r libTestStatic-C.a hello.o TestStatic-C_private.res&lt;/code&gt;
+消息&lt;code&gt;ar: creating libTestStatic-C.a&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ranlib libTestStatic-C.a&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;windows上小熊猫c创建的c语言静态库teststatic-cpp&#34;&gt;Windows上小熊猫C++创建的C语言静态库&lt;code&gt;TestStatic-CPP&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++.exe -c hello.cpp -o hello.o -O2 -std=c++2a -pipe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;windres.exe -i TestStatic-CPP_private.rc --input-format=rc -o TestStatic-CPP_private.res -O coff&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ar r libTestStatic-CPP.a hello.o TestStatic-CPP_private.res&lt;/code&gt;
+消息&lt;code&gt;ar: creating libTestStatic-CPP.a&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ranlib libTestStatic-CPP.a&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;总结-1&#34;&gt;总结&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++.exe -c xxx1.c xxx2.c xxx3.c -O2 -std=c++20 -pipe&lt;/code&gt;&lt;br&gt;
+或&lt;code&gt;g++.exe -c xxx1.c -O2 -o xxx1.o -std=c++20 -pipe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ar rcs libxxx.a xxx1.o xxx2.o xxx3.o&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;ar及其参数说明&#34;&gt;ar及其参数说明&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ar 是 Linux 的一个备份压缩命令，它可以将多个文件打包成一个备份文件（也叫归档文件），也可以从备份文件中提取成员文件。ar 命令最常见的用法是将目标文件打包为静态链接库。&lt;/li&gt;
+&lt;li&gt;参数r：在库中插入模块(替换)。当插入的模块名已经在库中存在，则替换同名的模块。如果若干模块中有一个模块在库中不存在，ar显示一个错误消息，并不替换其他同名模块。默认的情况下，新的成员增加在库的结尾处，可以使用其他任选项来改变增加的位置。&lt;/li&gt;
+&lt;li&gt;参数c：创建一个库。不管库是否存在，都将创建。&lt;/li&gt;
+&lt;li&gt;参数s：创建目标文件索引，这在创建较大的库时能加快时间。（补充：如果不需要创建索引，可改成大写S参数；如果.a文件缺少索引，可以使用ranlib命令添加）&lt;/li&gt;
+&lt;li&gt;有些场合&lt;code&gt;ar rcs&lt;/code&gt;又用&lt;code&gt;ar -rc&lt;/code&gt;、&lt;code&gt;ar -r&lt;/code&gt;、&lt;code&gt;ar r&lt;/code&gt;替代使用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;链接使用动态库和静态库&#34;&gt;链接(使用)动态库和静态库&lt;/h2&gt;
+&lt;h3 id=&#34;方法1-i-头文件目录--l-库文件目录--l库名xxx无前缀lib和后缀名&#34;&gt;方法1：&lt;code&gt;-I 头文件目录 -L 库文件目录 -l库名xxx(无前缀lib和后缀名)&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++ main.o -o main -I {INCLUDE_PATH} -L {LIB_PATH} -lname&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;g++ main.cpp -o main -I {INCLUDE_PATH} -L {LIB_PATH} -lname&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接动态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -I  D:\C++Lib\XXX\include -L D:\C++Lib\XXX\lib -lxxx&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接静态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -static -I  D:\C++Lib\XXX\include -L D:\C++Lib\XXX\lib -lxxx&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;方法2-i-头文件目录--l-库文件目录--l完整文件名后缀&#34;&gt;方法2：&lt;code&gt;-I 头文件目录 -L 库文件目录 -l:完整文件名+后缀&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++ main.o -o main -I {INCLUDE_PATH} -L {LIB_PATH} -l:完整文件名+后缀&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;g++ main.cpp -o main -I {INCLUDE_PATH} -L {LIB_PATH} -l:完整文件名+后缀&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接动态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -I D:\C++Lib\XXX\include -L D:\C++Lib\XXX\lib -l:libxxx.dll&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接静态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -static -I D:\C++Lib\XXX\include -L D:\C++Lib\XXX\lib -l:libxxx.a&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;方法3-i-头文件目录-文件路径完整文件名后缀&#34;&gt;方法3：&lt;code&gt;-I 头文件目录 文件路径+完整文件名+后缀&lt;/code&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;g++ main.o -o main -I {INCLUDE_PATH} {LIB_PATH_AND_LIBNAME}&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;g++ main.cpp -o main -I {INCLUDE_PATH} {LIB_PATH_AND_LIBNAME}&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接动态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -I D:\C++Lib\XXX\include D:\C++Lib\XXX\lib\libxxx.dll&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;举例链接静态库：&lt;br&gt;
+&lt;code&gt;g++ main.cpp -o main.exe -O2 -std=c++20 -pipe -s -static -I D:\C++Lib\XXX\include D:\C++Lib\XXX\lib\libxxx.a&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;说明&#34;&gt;说明：&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;-I 头文件目录&lt;/code&gt; 可用设置环境变量&lt;code&gt;set C_INCLUDE_PATH=头文件目录&lt;/code&gt;替代&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;-L 库文件目录&lt;/code&gt; 可用设置环境变量&lt;code&gt;set LIBRARY_PATH=库文件目录&lt;/code&gt;替代&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;文件路径+完整文件名+后缀&lt;/code&gt;不能省略路径，但可以用相对路径，&lt;code&gt;LIBRARY_PATH&lt;/code&gt;对方法3无效&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;其他&#34;&gt;其他&lt;/h2&gt;
+&lt;h3 id=&#34;名称修饰&#34;&gt;名称修饰&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;使用&lt;code&gt;extern &amp;quot;C&amp;quot;&lt;/code&gt;来关闭名称修饰&lt;/li&gt;
+&lt;li&gt;使用编译器选项关闭名称修饰：一些编译器提供了选项来关闭名称修饰，例如在GCC编译器中，可以使用&lt;code&gt;-fno-rtti&lt;/code&gt;选项关闭名称修饰。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;函数导出&#34;&gt;函数导出&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;MSVC &lt;code&gt;def文件&lt;/code&gt;、&lt;code&gt;__declspec(dllexport)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;MinGW64 &lt;code&gt;__declspec(dllexport)&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;cmake+MinGW64 默认会导出所有函数&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;环境变量&#34;&gt;环境变量&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;C_INCLUDE_PATH&lt;/code&gt;头文件路径的环境变量：&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;CPLUS_INCLUDE_PATH&lt;/code&gt;头文件路径的环境变量：&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LIBRARY_PATH&lt;/code&gt;库文件路径的环境变量&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;LD_LIBRARY_PATH&lt;/code&gt;是一个Linux环境变量，用于指定动态链接库的搜索路径。当一个程序运行时，如果需要使用动态链接库，系统会在&lt;code&gt;LD_LIBRARY_PATH&lt;/code&gt;中指定的路径中搜索相应的库文件，以便程序能够正确运行。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;查看用命令&#34;&gt;查看用命令&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;nm libxxx.a&lt;/code&gt; 查看库中包含的函数信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ldd main&lt;/code&gt;查看可执行程序依赖的动态库&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;fpic和fpic比较&#34;&gt;fpic和fPIC比较&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;相同点：都是为了在动态库中生成位置无关的代码，通过全局偏移表（GOT）访问所有常量地址。程序启动时动态加载程序解析GOT条目。&lt;/li&gt;
+&lt;li&gt;不同点：如果链接的可执行文件的GOT大小超过计算机架构特定的最大值，则会在编译链接时报错误消息，提示 -fpic 不起作用；因此在这种情况下，需要使用 -fPIC 重新编译。GOT大小因芯片架构的不同而大小不一样，SPARC上为8k，在AArch64上为28k（笔者遇到的就是它，GOT超出了限制，所以报错），在m68k和RS / 6000上为32k。而x86上没有此限制。&lt;/li&gt;
+&lt;li&gt;温馨提示：为了保障程序在跨平台编译时整体可用，通常情况下建议都使用 fPIC&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        <item>
+        <title>MinGW-w64 GCC本地化-Windows</title>
+        <link>https://blog.yprnet.com/p/prog/cpp-gcc-locale-windows-mingw64/</link>
+        <pubDate>Mon, 08 Jan 2024 23:00:21 +0800</pubDate>
+        
+        <guid>https://blog.yprnet.com/p/prog/cpp-gcc-locale-windows-mingw64/</guid>
+        <description>&lt;h2 id=&#34;参考资料1&#34;&gt;参考资料1&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/niXman/mingw-builds&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/niXman/mingw-builds&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://gcc.gnu.org/install/configure.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://gcc.gnu.org/install/configure.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/niXman/mingw-builds/issues/666&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/niXman/mingw-builds/issues/666&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;常规mingw-w64编译步骤以gcc1320为例&#34;&gt;常规MinGw-w64编译步骤(以GCC13.2.0为例)&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;环境：Windows-64bit or Linux + Wine-64bit&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;安装MSYS2：Install MSYS2 from:
+&lt;code&gt;http://sourceforge.net/projects/msys2/&lt;/code&gt;
+(MSYS2 wiki: &lt;a class=&#34;link&#34; href=&#34;https://www.msys2.org/wiki/MSYS2-installation/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://www.msys2.org/wiki/MSYS2-installation/&lt;/a&gt;)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;把来自niXman的编译脚本放到以下目录
+Get the scripts into &lt;code&gt;&amp;lt;msys root&amp;gt;/home/&amp;lt;user&amp;gt;/mingw-builds&lt;/code&gt;:
+&lt;code&gt;cd &amp;amp;&amp;amp; git clone &amp;lt;paste correct url&amp;gt;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;git clone https://github.com/niXman/mingw-builds.git&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在MSYS2环境中删除以下文件夹或重命名
+In the MSYS2 file structure delete or rename the &lt;code&gt;/mingw32&lt;/code&gt; and &lt;code&gt;/mingw64&lt;/code&gt; directory.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;从环境变量中删除指向任何预安装的 MinGW 的路径
+Delete the paths pointing to any preinstalled MinGW from the &lt;code&gt;PATH&lt;/code&gt;
+environment variable.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;进入以下目录
+Go into the MinGW-builds root directory:
+&lt;code&gt;cd &amp;amp;&amp;amp; cd mingw-builds&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;编译选项Options&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;运行Run:  &lt;font color=red&gt;（注意：编译运行前需做本地化修改，详见下文）&lt;/font&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cd mingw-builds
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;./build --mode=gcc-13.2.0 --buildroot=/c/buildroot --jobs=4 --rev=0 --with-default-msvcrt=ucrt --rt-version=v11 --threads=posix --exceptions=seh --arch=x86_64 --bin-compress --enable-languages=c,c++,fortran
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ol start=&#34;9&#34;&gt;
+&lt;li&gt;编译得到的编译器为：&lt;br&gt;
+&lt;code&gt;c:\buildroot\archives\x86_64-13.2.0-release-posix-seh-ucrt-rt_v11-rev0.7z&lt;/code&gt;&lt;br&gt;
+其中&lt;code&gt;c:\buildroot&lt;/code&gt;为上一步由&lt;code&gt;--buildroot=/c/buildroot&lt;/code&gt;指定&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;本地化需要修改内容以gcc1320为例-按参考资料2&#34;&gt;本地化需要修改内容(以GCC13.2.0为例)-按参考资料2&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;编译前修改编译参数:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;脚本文件：scripts/gcc-13.2.0.sh&lt;/code&gt; 将&lt;code&gt;--disable-nls&lt;/code&gt;修改为&lt;code&gt;--enable-nls&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(可选)将仓库中所有文件的&lt;code&gt;--disable-nls&lt;/code&gt;修改为&lt;code&gt;--enable-nls&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;对GCC13.2.0源码打补丁
+&lt;ul&gt;
+&lt;li&gt;按&lt;code&gt;参考资料2&lt;/code&gt;制作补丁文件&lt;code&gt;patches\gcc\gcc13.2.0-fix-localedir.patch&lt;/code&gt;(注意在Windows下要dos2unix)&lt;/li&gt;
+&lt;li&gt;在&lt;code&gt;scripts\gcc-13.2.0.sh&lt;/code&gt;加入上述补丁文件&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;结果说明-按参考资料2&#34;&gt;结果说明-按参考资料2&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;情况1，只改第1条&lt;br&gt;
+需依赖&lt;code&gt;C:\msys64\mingw64\share\locale\zh_CN\LC_MESSAGES\gcc.mo&lt;/code&gt;才能输出中文。&lt;br&gt;
+其中&lt;code&gt;C:\msys64\mingw64&lt;/code&gt;是编译&lt;code&gt;MinGW64 GCC13.2.0&lt;/code&gt;时用的编译器的路径。视编译情况需调整。&lt;code&gt;gcc.exe、g++.exe、cc1.exe、cc1plus.exe&lt;/code&gt;都依赖这个路径。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;情况2，全改第1、2条&lt;br&gt;
+Windows 7/8.1控制台正常。windows 10/11控制台正常输出错误提示时中文乱码（如果换为GCC11.4.0也正常）。&lt;br&gt;
+但在小熊猫C++使用此编译器时，Windows 7/8.1/10/11全部正常。因为其使用管道。&lt;br&gt;
+网友猜测可能原因：&lt;br&gt;
+&lt;code&gt;GCC为了兼容Windows残废的VT序列用力过猛，结果遇到真支持VT序列的Windows就抓瞎了&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;参考资料2&lt;/code&gt;相比&lt;code&gt;参考资料3&lt;/code&gt;的优点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;不用再复制一份语言文件&lt;/li&gt;
+&lt;li&gt;支持中文编译器路径、支持中文源文件路径、支持中文源文件名，均含调试&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;本地化需要修改内容以gcc1320为例-按参考资料3&#34;&gt;本地化需要修改内容(以GCC13.2.0为例)-按参考资料3&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;编译前修改编译参数:
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;脚本文件：scripts/gcc-13.2.0.sh&lt;/code&gt; 将&lt;code&gt;--disable-nls&lt;/code&gt;修改为&lt;code&gt;--enable-nls&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;(可选)将仓库中所有文件的&lt;code&gt;--disable-nls&lt;/code&gt;修改为&lt;code&gt;--enable-nls&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;修改gcc源码中gcc\intl.cc文件进行修改，详见下文：参考资料3。&lt;br&gt;
+这里要重点说明的是，gcc的源码是编译脚本自动下载的，正常见情况下无法修改。&lt;br&gt;
+这里提供几个方法：
+&lt;ul&gt;
+&lt;li&gt;方法1：参考上文添加补丁文件&lt;/li&gt;
+&lt;li&gt;方法2：编译完成后去 &lt;code&gt;c:\buildroot\src&lt;/code&gt;目录找到&lt;code&gt;gcc-13.2.0\gcc\intl.cc&lt;/code&gt;修改，然后重新编译。&lt;/li&gt;
+&lt;li&gt;方法3：&lt;code&gt;脚本文件：scripts/gcc-13.2.0.sh&lt;/code&gt;中有gcc的源码的下载地址，下载下来修改代码后再传到网上(我用了我自己的云服务器)，并将这个下载地址修改为你的地址。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 脚本文件：scripts/gcc-13.2.0.sh
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PKG_VERSION=13.2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PKG_NAME=gcc-${PKG_VERSION}
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PKG_DIR_NAME=gcc-${PKG_VERSION}  
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PKG_TYPE=.tar.xz  
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;PKG_URLS=(
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &amp;#34;https://ftpmirror.gnu.org/gnu/gcc/gcc-${PKG_VERSION}/gcc-${PKG_VERSION}${PKG_TYPE}&amp;#34;  
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;上述网址即&lt;code&gt;https://ftpmirror.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.xz&lt;/code&gt;&lt;br&gt;
+我这里改为了&lt;code&gt;http://www.yuanpeirong.com/gcc-13.2.0.tar.xz&lt;/code&gt;&lt;br&gt;
+因资金有限，编译后，现在我已经在我的服务器上删除了，你不用找了&lt;/p&gt;
+&lt;ol start=&#34;3&#34;&gt;
+&lt;li&gt;编译完成后解压编译器：&lt;code&gt;x86_64-13.2.0-release-posix-seh-ucrt-rt_v11-rev0.7z&lt;/code&gt;&lt;br&gt;
+在&lt;code&gt;mingw64&lt;/code&gt;目录下，将&lt;code&gt;share\locale\zh_CN\LC_MESSAGES\*.*&lt;/code&gt;拷贝一份至&lt;br&gt;
+&lt;code&gt;libexec\gcc\x86_64-w64-mingw32\&lt;/code&gt;下，最后形成的路径为&lt;br&gt;
+&lt;code&gt;libexec\gcc\x86_64-w64-mingw32\share\locale\zh_CN\LC_MESSAGES\*.*&lt;/code&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;结果说明-按参考资料3&#34;&gt;结果说明-按参考资料3&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;情况1，只改第1条&lt;br&gt;
+需依赖&lt;code&gt;C:\msys64\mingw64\share\locale\zh_CN\LC_MESSAGES\gcc.mo&lt;/code&gt;才能输出中文。&lt;br&gt;
+其中&lt;code&gt;C:\msys64\mingw64&lt;/code&gt;是编译&lt;code&gt;MinGW64 GCC13.2.0&lt;/code&gt;时用的编译器的路径。视编译情况需调整。&lt;code&gt;gcc.exe、g++.exe、cc1.exe、cc1plus.exe&lt;/code&gt;都依赖这个路径。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;情况2，只改第1、2条&lt;br&gt;
+只有&lt;code&gt;gcc -v、gcc --version、gcc --help&lt;/code&gt;能输出中文。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;情况3，全改第1、2、3条&lt;br&gt;
+Windows 7/8.1控制台正常。windows 10/11控制台正常输出错误提示时中文乱码。&lt;br&gt;
+但在小熊猫C++使用此编译器时，Windows 7/8.1/10/11全部正常。因为其使用管道。&lt;br&gt;
+网友猜测可能原因：&lt;br&gt;
+&lt;code&gt;GCC为了兼容Windows残废的VT序列用力过猛，结果遇到真支持VT序列的Windows就抓瞎了&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;用github-action自动编译&#34;&gt;用Github Action自动编译&lt;/h2&gt;
+&lt;p&gt;可快速编译各个版本，此处不另外展开&lt;/p&gt;
+&lt;h2 id=&#34;参考资料2网友cyanocn的nls补丁&#34;&gt;参考资料2：网友&lt;code&gt;cyano.CN&lt;/code&gt;的NLS补丁&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;来源：https://github.com/redpanda-cpp/mingw-lite/blob/nls/patch/gcc-fix-localedir.patch&lt;/li&gt;
+&lt;li&gt;其修改了&lt;code&gt;gcc-13.2.0/gcc/intl.cc&lt;/code&gt;和&lt;code&gt;gcc-13.2.0/libcpp/init.cc&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;48
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;49
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;50
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;51
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;52
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;53
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;54
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;55
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;56
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;57
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;58
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;59
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;60
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;61
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;62
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;63
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;64
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;65
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;66
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;67
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;68
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;69
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;70
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;71
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;72
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;73
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;74
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;75
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;76
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;77
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;78
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;79
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;80
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;81
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;82
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;83
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;84
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;85
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;86
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;87
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;88
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;89
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;90
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;91
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;92
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;93
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;94
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;95
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;96
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;97
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;98
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-patch&#34; data-lang=&#34;patch&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gh&#34;&gt;diff --unified --recursive --text gcc-13.2.0.orig/gcc/intl.cc gcc-13.2.0/gcc/intl.cc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gh&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gd&#34;&gt;--- gcc-13.2.0.orig/gcc/intl.cc	2023-07-27 16:13:04.000000000 +0800
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gd&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gi&#34;&gt;+++ gcc-13.2.0/gcc/intl.cc	2024-02-14 13:43:07.483162078 +0800
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gu&#34;&gt;@@ -22,6 +22,12 @@
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;&lt;/span&gt; #include &amp;#34;coretypes.h&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #include &amp;#34;intl.h&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#ifdef _WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#include &amp;lt;string&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#define WIN32_LEAN_AND_MEAN
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#include &amp;lt;windows.h&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt; #ifdef HAVE_LANGINFO_CODESET
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #include &amp;lt;langinfo.h&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #endif
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;@@ -55,7 +61,32 @@
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;&lt;/span&gt;   setlocale (LC_ALL, &amp;#34;&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #endif
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#ifdef _WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+  {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    /* Find the locale directory.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+       TODO: Use config instead of hard-coded dirs. */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    char buf[MAX_PATH] = {0};
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    GetModuleFileNameA(NULL, buf, MAX_PATH);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    std::string exe_path = buf;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    /* \libexec\gcc\&amp;lt;triplet&amp;gt;\&amp;lt;version&amp;gt;\cc1.exe */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    size_t pos = exe_path.rfind(R&amp;#34;(\libexec\gcc\)&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    if (pos == std::string::npos) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      /* \bin\gcc.exe */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      pos = exe_path.rfind(R&amp;#34;(\bin\)&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    if (pos == std::string::npos) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      (void) bindtextdomain (&amp;#34;gcc&amp;#34;, LOCALEDIR);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    } else {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      std::string real_prefix = exe_path.substr(0, pos);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      std::string win32_locale_dir = real_prefix + &amp;#34;/share/locale&amp;#34;;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      (void) bindtextdomain (&amp;#34;gcc&amp;#34;, win32_locale_dir.c_str());
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+    }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+  }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#else
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;   (void) bindtextdomain (&amp;#34;gcc&amp;#34;, LOCALEDIR);
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;   (void) textdomain (&amp;#34;gcc&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;   /* Opening quotation mark.  */
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gh&#34;&gt;diff --unified --recursive --text gcc-13.2.0.orig/libcpp/init.cc gcc-13.2.0/libcpp/init.cc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gh&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gd&#34;&gt;--- gcc-13.2.0.orig/libcpp/init.cc	2023-07-27 16:13:07.000000000 +0800
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gd&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gi&#34;&gt;+++ gcc-13.2.0/libcpp/init.cc	2024-02-14 13:42:44.969838638 +0800
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;&lt;span class=&#34;gu&#34;&gt;@@ -26,6 +26,12 @@
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;&lt;/span&gt; #include &amp;#34;localedir.h&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #include &amp;#34;filenames.h&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#ifdef _WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#include &amp;lt;string&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#define WIN32_LEAN_AND_MEAN
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#include &amp;lt;windows.h&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt; #ifndef ENABLE_CANONICAL_SYSTEM_HEADERS
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #ifdef HAVE_DOS_BASED_FILE_SYSTEM
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #define ENABLE_CANONICAL_SYSTEM_HEADERS 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;@@ -181,8 +187,33 @@
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gu&#34;&gt;&lt;/span&gt;       init_trigraph_map ();
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #ifdef ENABLE_NLS
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#ifdef _WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        /* Find the locale directory.
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+           TODO: Use config instead of hard-coded dirs. */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        char buf[MAX_PATH] = {0};
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        GetModuleFileNameA(NULL, buf, MAX_PATH);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        std::string exe_path = buf;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        /* \libexec\gcc\&amp;lt;triplet&amp;gt;\&amp;lt;version&amp;gt;\cc1.exe */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        size_t pos = exe_path.rfind(R&amp;#34;(\libexec\gcc\)&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        if (pos == std::string::npos) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          /* \bin\gcc.exe */
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          pos = exe_path.rfind(R&amp;#34;(\bin\)&amp;#34;);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        if (pos == std::string::npos) {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          (void) bindtextdomain (PACKAGE, LOCALEDIR);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        } else {
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          std::string real_prefix = exe_path.substr(0, pos);
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          std::string win32_locale_dir = real_prefix + &amp;#34;/share/locale&amp;#34;;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+          (void) bindtextdomain (PACKAGE, win32_locale_dir.c_str());
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+        }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+      }
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#else
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;        (void) bindtextdomain (PACKAGE, LOCALEDIR);
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; #endif
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;+#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;gi&#34;&gt;&lt;/span&gt;     }
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; }
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id=&#34;参考资料3&#34;&gt;参考资料3&lt;/h2&gt;
+&lt;p&gt;《MinGW/GCC 编译器修改 gettext 初始化路径使之能在任意位置输出中文消息》&lt;br&gt;
+来源：https://blog.csdn.net/hackpascal/article/details/15222083&lt;br&gt;
+原文摘抄如下：&lt;/p&gt;
+&lt;p&gt;GCC 编译器支持 gettext 的本地化，MinGW 也一样，只是可惜他们在内部实现时使用了绝对路径。这个绝对路径的前缀(prefix) 由编译时传递给 configure 的 &amp;ndash;prefix 设定，这样就导致了 MinGW 只有在指定的位置上才能实现编译消息本地化。&lt;/p&gt;
+&lt;p&gt;我所做的就是让 GCC 在初始化 gettext 时使用相对路径，这样就能使 MinGW 在任何地方都能使用本地化的字符串了。包含文件搜索路径也同理。&lt;/p&gt;
+&lt;p&gt;通过查找 bindtextdomain 函数可以知道 gcc 对 gettext 的初始化在 gcc\intl.cc 中完成。包含文件搜索路径定义在 incpath.c 中。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;gcc_init_libintl&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#ifdef HAVE_LC_MESSAGES
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;setlocale&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LC_CTYPE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;setlocale&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LC_MESSAGES&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#else
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;setlocale&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LC_ALL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bindtextdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LOCALEDIR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;textdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* Opening quotation mark.  */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;open_quote&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;`&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;cm&#34;&gt;/* Closing quotation mark.  */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;n&#34;&gt;close_quote&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#if defined HAVE_LANGINFO_CODESET
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;  &lt;span class=&#34;n&#34;&gt;locale_encoding&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;nl_langinfo&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;CODESET&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;locale_encoding&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;strcasecmp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;locale_encoding&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;utf-8&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;o&#34;&gt;||&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;strcasecmp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;locale_encoding&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;utf8&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;locale_utf8&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nb&#34;&gt;true&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;strcmp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;open_quote&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;`&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;strcmp&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;close_quote&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;cm&#34;&gt;/* Untranslated quotes that it may be possible to replace with
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cm&#34;&gt;	 U+2018 and U+2019; but otherwise use &amp;#34;&amp;#39;&amp;#34; instead of &amp;#34;`&amp;#34; as
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cm&#34;&gt;	 opening quote.  */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;open_quote&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&amp;#39;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#if defined HAVE_LANGINFO_CODESET
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;      &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;locale_utf8&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;n&#34;&gt;open_quote&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\xe2\x80\x98&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;n&#34;&gt;close_quote&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\xe2\x80\x99&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;由于我所做的是针对 Windows 下的修改，因此所有改动都要加上 #ifdef WIN32 &amp;hellip; #endif&lt;br&gt;
+首先在开头加上：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#ifdef WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;windows.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;BOOL&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;DirectoryExists&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LPSTR&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;lpszPath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;WIN32_FIND_DATA&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;BOOL&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bResult&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;FALSE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;HANDLE&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;hFind&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;FindFirstFile&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszPath&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;((&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hFind&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;INVALID_HANDLE_VALUE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wfd&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dwFileAttributes&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;FILE_ATTRIBUTE_DIRECTORY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;bResult&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;TRUE&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;FindClose&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;hFind&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bResult&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;其中 DirectoryExists 是用来判断路径是否存在的。&lt;/p&gt;
+&lt;p&gt;然后修改 (void) bindtextdomain (&amp;ldquo;gcc&amp;rdquo;, LOCALEDIR);  为：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt; 9
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;10
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;11
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;12
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;13
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;14
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;15
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;16
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;17
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;18
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;19
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;20
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;21
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;22
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;23
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;24
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;25
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;26
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;27
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;28
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;29
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;30
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;31
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;32
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;33
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;34
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;35
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;36
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;37
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;38
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;39
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;40
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;41
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;42
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;43
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;44
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;45
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;46
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;47
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#ifndef WIN32
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bindtextdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LOCALEDIR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#else
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;n&#34;&gt;DWORD&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;MAX_PATH&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;20&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;LPSTR&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LPSTR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;xmalloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dwSize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;DWORD&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwRealSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;GetModuleFileNameA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwSize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dwRealSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwSize&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;LPSTR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;xrealloc&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;20&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;n&#34;&gt;GetModuleFileNameA&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;NULL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dwRealSize&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;20&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;cm&#34;&gt;/* 去掉文件名 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;l&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;sc&#34;&gt;&amp;#39;\\&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		  &lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;cm&#34;&gt;/* 去掉一层文件夹 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;strlen&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;while&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;==&lt;/span&gt; &lt;span class=&#34;sc&#34;&gt;&amp;#39;\\&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		  &lt;span class=&#34;k&#34;&gt;break&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	  &lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;cm&#34;&gt;/* 判断是否到根路径 */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;!=&lt;/span&gt; &lt;span class=&#34;sc&#34;&gt;&amp;#39;\\&amp;#39;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bindtextdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LOCALEDIR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;c1&#34;&gt;// 连接上 share\locale
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;l&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;+&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;strcat&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;s&#34;&gt;&amp;#34;share&lt;/span&gt;&lt;span class=&#34;se&#34;&gt;\\&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;locale&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;k&#34;&gt;if&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;DirectoryExists&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;))&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bindtextdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;k&#34;&gt;else&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		  &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;bindtextdomain&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;gcc&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LOCALEDIR&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;n&#34;&gt;free&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;lpszName&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#endif
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这样重新编译后，无论 MinGW 位置在哪，它都能显示翻译后的消息了。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>GCC本地化-Linux</title>
+        <link>https://blog.yprnet.com/p/prog/cpp-gcc-locale-linux/</link>
+        <pubDate>Sun, 07 Jan 2024 13:00:21 +0800</pubDate>
+        
+        <guid>https://blog.yprnet.com/p/prog/cpp-gcc-locale-linux/</guid>
+        <description>&lt;h2 id=&#34;参考资料&#34;&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;../Kawaii-gcc/README-zh.md&#34; &gt;Kawaii-gcc本地&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/Bill-Haku/kawaii-gcc/blob/main/README-zh.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Kawaii-gcc网站&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://wiki.archlinux.org/title/Localization/Simplified_Chinese&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;ArchLinux设置简体中文&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;linux环境&#34;&gt;Linux环境&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;安装中文 (如果没有安装)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get install language-pack-zh-hans language-pack-zh-hans-base
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;安装 &lt;code&gt;gcc&lt;/code&gt; ,  &lt;code&gt;gettext&lt;/code&gt; 和 &lt;code&gt;g++&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get install gcc gettext g++
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;安装 &lt;code&gt;gcc locales&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;通过以下命令检查你的&lt;code&gt;gcc&lt;/code&gt;版本号&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;gcc -v
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;我这里是12.3.0.所以我的主版本号是12，安装&lt;code&gt;gcc-12-locales&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt-get install gcc-12-locales
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;找到你的语言文件的路径。默认会在 &lt;code&gt;/usr/share/locale/zh_CN/LC_MESSAGES/gcc.mo&lt;/code&gt;. 不过你也有可能找不到该文件或者找到名为&lt;code&gt;gcc-12.mo&lt;/code&gt;的文件。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如果你在上个步骤找到了相关文件，请直接使用原本的名字。&lt;/li&gt;
+&lt;li&gt;如果没有，首先使用 &lt;code&gt;gcc-&amp;lt;主版本号&amp;gt;.mo&lt;/code&gt; 。如果发现不起作用，将其重命名为 &lt;code&gt;gcc.mo&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;修改环境变量以将终端语言改为中文：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;vim ~/.bashrc
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Add the following lines&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;LANG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;zh_CN.UTF-8&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;LANGUAGE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;zh_CN.UTF-8&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# Save it in Vim&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;source&lt;/span&gt; ~/.bashrc
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;实测archlinux&#34;&gt;实测ArchLinux&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;已经是中文版&lt;/li&gt;
+&lt;li&gt;已安装gcc gettext g++&lt;/li&gt;
+&lt;li&gt;gcc版本为13&lt;/li&gt;
+&lt;li&gt;没有gcc-13-locales、但有/usr/share/locale/zh_CN/LC_MESSAGES/gcc.mo&lt;/li&gt;
+&lt;li&gt;只要按上述将终端语言改为中文即可&lt;/li&gt;
+&lt;li&gt;将gcc.mo替换为kawaii-gcc中的prebuilt/gcc-zh.mo(需重命名为gcc.mo)可成功&lt;/li&gt;
+&lt;li&gt;将gcc.mo替换为mingw64\share\locale\zh_CN\LC_MESSAGES\gcc.mo可成功&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;实测ubuntu-2204&#34;&gt;实测Ubuntu 22.04&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;已经是中文版&lt;/li&gt;
+&lt;li&gt;已安装gcc gettext g++ gcc-11-locales&lt;/li&gt;
+&lt;li&gt;gcc版本为11&lt;/li&gt;
+&lt;li&gt;将/usr/share/locale-langpack/zh_CN/LC_MESSAGES/gcc.mo复制到/usr/share/locale/zh_CN/LC_MESSAGES/，并改名为gcc-11.mo&lt;/li&gt;
+&lt;li&gt;按上述将终端语言改为中文即可&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;备注&#34;&gt;备注：&lt;/h2&gt;
+&lt;p&gt;无论是ArchLinux和Ubuntu，我确保设置了&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;/etc/locale.gen&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;zh_CN.UTF-8 UTF-8
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;/etc/locale.conf&lt;/code&gt; (经验证在Ubuntu 22.04上不需要也可以)&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;LANG=zh_CN.UTF-8
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这两个文件我放在&amp;quot;\192.168.96.2\ypr-pc\软件\Linux\ArchLinux\locale配置文件.rar&amp;quot;&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>GCC环境变量</title>
+        <link>https://blog.yprnet.com/p/prog/cpp-gcc-env-var/</link>
+        <pubDate>Sun, 07 Jan 2024 13:00:21 +0800</pubDate>
+        
+        <guid>https://blog.yprnet.com/p/prog/cpp-gcc-env-var/</guid>
+        <description>&lt;h1 id=&#34;本文还未整理完&#34;&gt;本文还未整理完&lt;/h1&gt;
+&lt;h2 id=&#34;参考资料&#34;&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/zblue78/article/details/1499717&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;GCC 环境变量&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/zengkefu/p/5618034.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;GCC相关的环境变量 &lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/panfeng412/archive/2011/10/20/library_path-and-ld_library_path.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;LIBRARY_PATH和LD_LIBRARY_PATH环境变量的区别&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;有大量的环境变量可供设置以影响 GCC 编译程序的方式。利用这些变量的控制也可使用合适的命令行选项。&lt;/p&gt;
+&lt;p&gt;一些环境变量设置在目录名列表中。这些名字和 PATH 环境变量使用的格式相同。特殊字符 PATH_SEPARATOR （安装编译程序的时候定义）用在目录名之间。在 UNIX 系统中，分隔符是冒号，而 Windows 系统中为分号。&lt;/p&gt;
+&lt;h2 id=&#34;c_include_path&#34;&gt;C_INCLUDE_PATH&lt;/h2&gt;
+&lt;p&gt;编译 C 程序时使用该环境变量。该环境变量指定一个或多个目录名列表，查找头文件，就好像在命令行中指定 -isystem 选项一样。会首先查找 -isystem 指定的所有目录。&lt;/p&gt;
+&lt;p&gt;也见 CPATH 、 CPLUS_INCLUDE_PATH 和 OBJC_INCLUDE_PATH 。&lt;/p&gt;
+&lt;h2 id=&#34;compiler_path&#34;&gt;COMPILER_PATH&lt;/h2&gt;
+&lt;p&gt;该环境变量指定一个或多个目录名列表，如果没有指定 GCC_EXEC_PREFIX 定位子程序，编译程序会在此查找它的子程序。&lt;/p&gt;
+&lt;p&gt;也见 LIBRARY_PATH 、 GCC_EXEC_PREFIX 和 -B 命令行选项。&lt;/p&gt;
+&lt;h2 id=&#34;cpath&#34;&gt;CPATH&lt;/h2&gt;
+&lt;p&gt;编译 C 、 C++ 和 Objective-C 程序时使用该环境变量。该环境变量指定一个或多个目录名列表，查找头文件，就好像在命令行中指定 -l 选项一样。会首先查找 -l 指定的所有目录。&lt;/p&gt;
+&lt;p&gt;也见 C_INCLUDE_PATH 、 CPLUS_INCLUDE_PATH 和 OBJC_INCLUDE_PATH 。&lt;/p&gt;
+&lt;h2 id=&#34;cplus_include_path&#34;&gt;CPLUS_INCLUDE_PATH&lt;/h2&gt;
+&lt;p&gt;编译 C++ 程序时使用该环境变量。该环境变量指定一个或多个目录名列表，查找头文件，就好像在命令行中指定 -isystem 选项一样。会首先查找 -isystem 指定的所有目录。&lt;/p&gt;
+&lt;p&gt;也见 CPATH 、 C_INCLUDE_PATH 和 OBJC_INCLUDE_PATH 。&lt;/p&gt;
+&lt;h2 id=&#34;dependencies_output&#34;&gt;DEPENDENCIES_OUTPUT&lt;/h2&gt;
+&lt;p&gt;为文件名设置该环境变量会让预处理程序将基于依赖关系的 makefile 规则写入文件。不会包括系统头文件名字。&lt;/p&gt;
+&lt;p&gt;如果环境变量设置为单名，被看作是文件名字，而依赖关系规则的名字来自源文件名字。如果定义中有两个名字，则第二个名字是用作依赖关系规则的目标名。&lt;/p&gt;
+&lt;p&gt;设置该环境变量的结果和使用命令行选项 -MM 、 -MF 和 -MT 的组合是一样的。也见 SUNPRO_DEPENDENCIES 。&lt;/p&gt;
+&lt;h2 id=&#34;gcc_exec_prefix&#34;&gt;GCC_EXEC_PREFIX&lt;/h2&gt;
+&lt;p&gt;如 果定义了该环境变量，它会作为编译程序执行的所有子程序名字的前缀。例如，如果将变量设置为 testver 而不是查找 as ，汇编器首先会在名字 testveras 下查找。如果在此没有找到，编译程序会继续根据它的普通名进行查找。可在前缀名中使用斜线指出路径名。&lt;/p&gt;
+&lt;p&gt;GCC_EXEC_PREFIX 的默认设置为 prefix /lib/gcc-lib/ ，这里的 prefix 是安装编译程序时 configure 脚本指定的名字。该前缀也用于定位标准连接程序文件，包含进来作为可执行程序的一部分。&lt;/p&gt;
+&lt;p&gt;如果使用 -B 命令行选项，会重写该设置。也见 COMPILER_PATH 。&lt;/p&gt;
+&lt;h2 id=&#34;lang&#34;&gt;LANG&lt;/h2&gt;
+&lt;p&gt;该环境变量用于指出编译程序使用的字符集，可创建宽字符文字、串文字和注释。&lt;/p&gt;
+&lt;p&gt;定义 LANG 为 C-JIS ，指出预处理程序将多字节字符按照 JIS （日语工业标准）字符进行解释。 C-SJIS 可用来指出 Shift -JIS 字符而 C-EUCJP 指出日文 EUC 。&lt;/p&gt;
+&lt;p&gt;如果没有定义 LANG ，或定义为不可识别，函数 mblen() 被用来确定字符宽度，而 mbtowc() 用来将多字节序列转换为宽字符。&lt;/p&gt;
+&lt;h2 id=&#34;lc_all&#34;&gt;LC_ALL&lt;/h2&gt;
+&lt;p&gt;如果设置，该环境变量的值重写 LC_MESSAGES 和 LC_CTYPE 的所有设置。&lt;/p&gt;
+&lt;h2 id=&#34;lc_ctype&#34;&gt;LC_CTYPE&lt;/h2&gt;
+&lt;p&gt;该 环境变量指出引用串中定义的多字节字符的字符分类。主要用于确定字符串的字符边界，字符编码需要用引号或转义符，可被错误地解释为字符串的结尾或特殊字符 串。对 Australian English ，可将它设置为 en_AU ； 对 Mexican Spanish ，可将它设置为 es_MX 。如果没有设置该变量，默认为 LANG 变量的值，或如果没有设置 LANG ，那就使用 C 英语行为。也见 LC_ALL 。&lt;/p&gt;
+&lt;h2 id=&#34;lc_messages&#34;&gt;LC_MESSAGES&lt;/h2&gt;
+&lt;p&gt;该 环境变量指出编译程序使用何种语言发出诊断消息。对 Australian English ，可设置为 en_AU ； 对 Mexican Spanish ，可设置为 es_MX 。如果变量没有设置，使用 LANG 变量的默认值，或如果没有设置 LANG ，那就使用 C 英语行为。也见 LC_ALL 。&lt;/p&gt;
+&lt;h2 id=&#34;ld_library_path&#34;&gt;LD_LIBRARY_PATH&lt;/h2&gt;
+&lt;p&gt;该环境变量不会影响编译程序，但程序运行的时候会有影响。变量指定一个目录列表，程序会查找该列表定位共享库。只有当未在编译程序的目录中找到共享库的时候，执行程序必须设置该变量。&lt;/p&gt;
+&lt;h2 id=&#34;ld_run_path&#34;&gt;LD_RUN_PATH&lt;/h2&gt;
+&lt;p&gt;该环境变量不会影响编译程序，但程序运行的时候会有影响。该变量在运行时指出文件的名字，运行的程序可由此得到它的符号名字和地址。地址不会重新载入，因而可能符号引用其他文件中的绝对地址。这和 ld 工具使用 -R 选项完全一样。&lt;/p&gt;
+&lt;h2 id=&#34;library_path&#34;&gt;LIBRARY_PATH&lt;/h2&gt;
+&lt;p&gt;该环境变量可设置为一个或多个目录名字列表，连接程序会搜寻该目录，以查找特殊连接程序文件，和由 -l （字母 l ）命令行选项指定名字的库。&lt;/p&gt;
+&lt;p&gt;由 -L 命令行选项指定的目录在环境变量的前面，首先被查找。也见 COMPILER_PATH 。&lt;/p&gt;
+&lt;h2 id=&#34;objc_include_path&#34;&gt;OBJC_INCLUDE_PATH&lt;/h2&gt;
+&lt;p&gt;在编译 Objective-C 程序的时候使用该环境变量。一个或多个目录名的列表由环境变量指定，用来查找头文件，就好像在命令行中指定 -isystem 选项一样。所有由 -isystem 选项指定的目录会首先被查找。&lt;/p&gt;
+&lt;p&gt;也见 CPATH 、 CPLUS_INCLUDE_PATH 和 C_INCLUDE_PATH 。&lt;/p&gt;
+&lt;p&gt;SUNPRO_OUTPUT
+为文件名设置该环境变量会令预处理程序将基于依赖关系的 makefile 规则写入文件。会包含系统头文件名。&lt;/p&gt;
+&lt;p&gt;如果环境变量被设置为单个名字，它将会被当作文件名，依赖关系规则中的名字将由源文件的名字中获得。如果定义中有两个名字，第二个名字就是依赖关系规则中的目标名。&lt;/p&gt;
+&lt;p&gt;设置该环境变量的结果与在命令行中使用参数 -M 、 -MF 和 -MT 的效果一样。参见 DEPENDENCIES_OUTPUT 。&lt;/p&gt;
+&lt;h2 id=&#34;tmpdir&#34;&gt;TMPDIR&lt;/h2&gt;
+&lt;p&gt;这个变量包含了供编译程序存放临时工作文件的目录的路径名。这些文件通常在编译过程结束时被删除。这种文件的一个例子就是由预处理程序输出并输入给编译程序的文件。&lt;/p&gt;
+</description>
+        </item>
+        <item>
+        <title>MSYS2中的GCC本地化</title>
+        <link>https://blog.yprnet.com/p/prog/msys2-gcc-locale/</link>
+        <pubDate>Fri, 24 Nov 2023 13:00:21 +0800</pubDate>
+        
+        <guid>https://blog.yprnet.com/p/prog/msys2-gcc-locale/</guid>
+        <description>&lt;h2 id=&#34;参考资料&#34;&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;GCC本地化-Linux&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;注意&#34;&gt;注意&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;本文是指MSYS2主环境中的gcc，不是指mingw64、ucrt64、mingw32子环境&lt;/li&gt;
+&lt;li&gt;缺点是：即便静态链接，生成的exe程序还是需要&lt;code&gt;msys-2.0.dll&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;msys2主环境&#34;&gt;MSYS2主环境&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;安装&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pacman -S gcc           //GNU编译器集合-C和C++前端  
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pacman -S gcc-libs      //GCC提供的运行时库            我不确定是否必需
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pacman -S gettext       //GNU国际化库                 
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;pacman -S gettext-devel //GNU国际化开发实用程序        我不确定是否必需
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&amp;ldquo;D:\msys64\home\YuanPeirong.bashrc&amp;quot;加入&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-gdscript3&#34; data-lang=&#34;gdscript3&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LANG&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;zh_CN.UTF-8&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;export&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;LANGUAGE&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;zh_CN.UTF-8&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;gcc.mo&lt;br&gt;
+gcc版本为13&lt;br&gt;
+确保有&amp;quot;D:\msys64\usr\share\locale\zh_CN\LC_MESSAGES\gcc.mo&amp;rdquo;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;外部使用&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;方法1：设置系统环境变量&lt;br&gt;
+&lt;code&gt;变量名：LANG       变量值：zh_CN.UTF-8&lt;/code&gt;&lt;br&gt;
+&lt;code&gt;变量名：LANGUAGE   变量值：zh_CN.UTF-8&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;方法2：在bat文件中写入以下变量，再启动其他外部工具&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;set LANG=zh_CN.UTF-8
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;set LANGUAGE=zh_CN.UTF-8
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;方法3：写个exe文件设置变量，再调用真正要使用的外部工具（未测试）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;方法4：写个run.ps1脚本（未测试）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;方法5：设置临时变量，用分号执行多条命令，如：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export LANG=&amp;quot;zh_CN.UTF-8&amp;quot;;export LANGUAGE=&amp;quot;zh_CN.UTF-8&amp;quot;;gcc -v&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;export LANG=&amp;quot;zh_CN.utf8&amp;quot;;export LANGUAGE=&amp;quot;zh_CN.utf8&amp;quot;;gcc -v&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;以上两条命令都有效。&lt;br&gt;
+&lt;code&gt;zh_CN.UTF-8&lt;/code&gt;和&lt;code&gt;zh_CN.utf8&lt;/code&gt;是等效的&lt;br&gt;
+但gcc源码的文档中是用&lt;code&gt;zh_CN.utf8&lt;/code&gt;描述的&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
